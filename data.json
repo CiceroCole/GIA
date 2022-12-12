@@ -1,0 +1,42 @@
+{
+  "hello": true,
+  "urls": [
+    "https://tu.ltyuanfang.cn/api/fengjing.php"
+  ],
+  "request_datas": [
+    {}
+  ],
+  "support_type": [
+    "BMP",
+    "CUR",
+    "DCX",
+    "FLI",
+    "FLC ",
+    "FPX",
+    "GBR",
+    "GD",
+    "GIF",
+    "ICO",
+    "IM",
+    "IMT",
+    "JPEG",
+    "JPG",
+    "MCIDAS",
+    "MIC",
+    "MSP",
+    "PCD",
+    "PCX",
+    "PIXAR",
+    "PNG",
+    "PPM",
+    "PSD",
+    "SGI",
+    "SPIDER",
+    "TGA ",
+    "TIFF",
+    "WAL",
+    "WMF",
+    "XBM",
+    "XPM"
+  ]
+}
