@@ -326,8 +326,8 @@ class GetImgAPI:
 
     def data_refresh(self):
         print('<!> 配置数据刷新重载')
-        self.config_refresh()
         self.settings_refresh()
+        self.config_refresh()
 
     def config_refresh(self):
         with open(file=self.now_config_file_path, encoding='UTF-8') as jf:
