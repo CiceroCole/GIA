@@ -1,0 +1,1 @@
+D:\HUAN-JING\Python-3.10.6\Scripts\pyinstaller -D --name=GIA --distpath=E:\Documents\Python_Files\GIA\bin --workpath=E:\Documents\Python_Files\GIA\build -i E:\Documents\Python_Files\GIA\Data\img\icon\PIP-GUI.ico GIA.py

@@ -1,0 +1,1 @@
+pipreqs ./ --encoding=utf-8 --proxy=127.0.0.1:7890
