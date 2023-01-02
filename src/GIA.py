@@ -127,12 +127,12 @@ class GetImgAPI:
             root.attributes('-fullscreen', True)
             # root.attributes("-topmost", True)
             self.master = root
-            if not exists(f'{main_path}/Data/img/icon/PIP-GUI.ico'):
-                with open(f'{main_path}/Data/img/icon/PIP-GUI.ico', 'wb') as save_icon_file, urlopen(
+            if not exists(f'{main_path}/Data/img/icon/icon.ico'):
+                with open(f'{main_path}/Data/img/icon/icon.ico', 'wb') as save_icon_file, urlopen(
                         url='https://icon-icons.com/downloadimage.php?id=213814&root'
                             '=3392/ICO/64/&file=python_icon_213814.ico') as get_icon_file:
                     save_icon_file.write(get_icon_file.read())
-            self.master.iconbitmap(f'{main_path}/Data/img/icon/PIP-GUI.ico')
+            self.master.iconbitmap(f'{main_path}/Data/img/icon/icon.ico')
         else:
             self.master = master
         showinfo(title='提示',
@@ -674,7 +674,7 @@ class GetImgAPI:
         post_win.geometry('350x400')
         post_win.attributes("-topmost", True)
         post_win.resizable(False, False)
-        post_win.iconbitmap(f'{main_path}/Data/img/icon/PIP-GUI.ico')
+        post_win.iconbitmap(f'{main_path}/Data/img/icon/icon.ico')
 
         def fast_mode():
             self.img_load_mode = Image.NEAREST
