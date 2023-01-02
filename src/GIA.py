@@ -1,3 +1,4 @@
+import json
 import tkinter
 import warnings
 import win32api
@@ -119,7 +120,7 @@ class GetImgAPI:
     def __init__(self, master: tkinter.Tk = None):
         self.create_work_dirs()
         self.show_w_h = None
-        if not master:
+        if type(master) != tkinter.Tk:
             root = tkinter.Tk()
             root.title('GIA')
             root.geometry('{}x{}'.format(*root.maxsize()))
@@ -224,53 +225,43 @@ class GetImgAPI:
 
     @staticmethod
     def create_work_dirs():
+        def _if_not_exists_mkdir(dir_path):
+            if not exists(dir_path):
+                mkdir(dir_path)
+
         # Data
-        if not exists(f'{main_path}/Data'):
-            mkdir(f'{main_path}/Data')
+        _if_not_exists_mkdir(f'{main_path}/Data')
         # Data/config
-        if not exists(f'{main_path}/Data/config'):
-            mkdir(f'{main_path}/Data/config')
+        _if_not_exists_mkdir(f'{main_path}/Data/config')
         # Data/img
-        if not exists(f'{main_path}/Data/img'):
-            mkdir(f'{main_path}/Data/img')
+        _if_not_exists_mkdir(f'{main_path}/Data/img')
         # Data/img/icon
-        if not exists(f'{main_path}/Data/img/icon'):
-            mkdir(f'{main_path}/Data/img/icon')
+        _if_not_exists_mkdir(f'{main_path}/Data/img/icon')
         # Data/img/save
-        if not exists(f'{main_path}/Data/img/save'):
-            mkdir(f'{main_path}/Data/img/save')
+        _if_not_exists_mkdir(f'{main_path}/Data/img/save')
         # Data/img/temp
-        if not exists(f'{main_path}/Data/img/temp'):
-            mkdir(f'{main_path}/Data/img/temp')
-
+        _if_not_exists_mkdir(f'{main_path}/Data/img/temp')
         # Data/img/temp/response
-        if not exists(f'{main_path}/Data/img/temp/response'):
-            mkdir(f'{main_path}/Data/img/temp/response')
-
+        _if_not_exists_mkdir(f'{main_path}/Data/img/temp/response')
         # Data/img/Wallpaper
-        if not exists(f'{main_path}/Data/img/Wallpaper'):
-            mkdir(f'{main_path}/Data/img/Wallpaper')
-
+        _if_not_exists_mkdir(f'{main_path}/Data/img/Wallpaper')
         # Data/img/history
-        if not exists(f'{main_path}/Data/img/history'):
-            mkdir(f'{main_path}/Data/img/history')
+        _if_not_exists_mkdir(f'{main_path}/Data/img/history')
+
+        def _if_not_exists_json_file_mk(json_path, init_json_data):
+            if not exists(json_path):
+                with open(file=json_path, mode='w', encoding='UTF-8',
+                          newline='\n') as config_file:
+                    dump(fp=config_file, obj=init_json_data, indent=4, ensure_ascii=False)
 
         # Data/config/config.json
-        if not exists(f'{main_path}/Data/config/config.json'):
-            with open(file=f'{main_path}/Data/config/config.json', mode='w', encoding='UTF-8',
-                      newline='\n') as config_file:
-                dump(fp=config_file, obj=init_config, indent=4, ensure_ascii=False)
-
+        _if_not_exists_json_file_mk(f'{main_path}/Data/config/config.json', init_config)
         # Data/config/UA.json
-        if not exists(f'{main_path}/Data/config/UA.json'):
-            with open(file=f'{main_path}/Data/config/UA.json', mode='w', encoding='UTF-8', newline='\n') as ua_file:
-                dump(fp=ua_file, obj=init_ua, indent=4, ensure_ascii=False)
-
+        _if_not_exists_json_file_mk(f'{main_path}/Data/config/UA.json', init_ua)
         # Data/config/settings.json
-        if not exists(f'{main_path}/Data/config/settings.json'):
-            with open(file=f'{main_path}/Data/config/settings.json', mode='w', encoding='UTF-8',
-                      newline='\n') as set_file:
-                dump(fp=set_file, obj=init_set, indent=4, ensure_ascii=False)
+        _if_not_exists_json_file_mk(f'{main_path}/Data/config/settings.json', init_set)
+        # Data/config/setu-r18.json
+        _if_not_exists_json_file_mk(f'{main_path}/Data/config/setu-r18.json', setu_r18_config)
 
     @staticmethod
     def is_int(var):
@@ -335,7 +326,11 @@ class GetImgAPI:
 
     def data_refresh(self):
         print('<!> 配置数据刷新重载')
-        with open(f'{main_path}/Data/config/config.json') as jf:
+        self.config_refresh()
+        self.settings_refresh()
+
+    def config_refresh(self):
+        with open(file=self.now_config_file_path, encoding='UTF-8') as jf:
             ljf = load(jf)
             self.urls: list = ljf['urls']
             self.request_datas: dict = ljf['request_datas']
@@ -367,6 +362,7 @@ class GetImgAPI:
             ua_jf = load(fp=jf)
             self.UA = ua_jf
 
+    def settings_refresh(self):
         with open(file=f'{main_path}/Data/config/settings.json', mode='r', encoding='UTF-8') as set_jf:
             settings = load(fp=set_jf)
             self.img_load_mode = settings["img_load_mode"]
@@ -673,7 +669,7 @@ class GetImgAPI:
         self.have_set_up_win = True
         post_win = tkinter.Tk()
         post_win.title('设置')
-        post_win.geometry('300x350')
+        post_win.geometry('350x400')
         post_win.attributes("-topmost", True)
         post_win.resizable(False, False)
         post_win.iconbitmap(f'{main_path}/Data/img/icon/PIP-GUI.ico')
@@ -815,6 +811,34 @@ class GetImgAPI:
             else:
                 print('<!> 已取消设置桌面壁纸背景颜色')
 
+        def change_config():
+            ask_config_file_path = askopenfilename(title='请选择配置文件',
+                                                   filetypes=[('JSON', '*.json'), ('Any-Type', '*')],
+                                                   initialdir=dirname(self.now_config_file_path),
+                                                   initialfile=basename(self.now_config_file_path))
+            old_config_file_path = self.now_config_file_path
+            if exists(ask_config_file_path):
+                def _not_ok():
+                    self.now_config_file_path = old_config_file_path
+                    config_path_text_button.config(fg='red')
+                    config_path_text_button.after(ms=5000, func=lambda: config_path_text_button.config(fg='#000000'))
+
+                self.now_config_file_path = ask_config_file_path
+                try:
+                    self.config_refresh()
+                except UnicodeDecodeError:
+                    print('<!> 文件编码错误, 请重新选择!')
+                    _not_ok()
+                except json.decoder.JSONDecodeError:
+                    print('<!> 文件解码错误, 请重新选择!')
+                    _not_ok()
+                except KeyError:
+                    print('<!> 文件内容错误, 请重新选择!')
+                    _not_ok()
+                else:
+                    config_path_text_button.delete(1.0, tkinter.END)
+                    config_path_text_button.insert(1.0, self.now_config_file_path)
+
         tkinter.Label(master=post_win, text='图片加载模式').pack()
         check_frame1 = tkinter.Frame(master=post_win)
         img_fast_mode_button = tkinter.Button(master=check_frame1, text='快速模式', command=fast_mode)
@@ -923,11 +947,14 @@ class GetImgAPI:
 
         # change config
         change_config_frame = tkinter.Frame(master=post_win)
-        config_path_text_button = tkinter.Text(master=change_config_frame, font=('Microsoft Yahei Mono', 12))
-        config_path_text_button.delete(1, tkinter.END)
-        config_path_text_button.insert(1, self.now_config_file_path)
+        config_path_text_button = tkinter.Text(master=change_config_frame,
+                                               font=('Microsoft Yahei Mono', 10), height=1, width=25)
+        config_path_text_button.delete(1.0, tkinter.END)
+        config_path_text_button.insert(1.0, self.now_config_file_path)
         config_path_text_button.pack(side=tkinter.LEFT)
-        config_path_button = tkinter.Button(master=change_config_frame, text='选择配置文件')
+        config_path_button = tkinter.Button(master=change_config_frame, text='选择配置文件',
+                                            command=change_config)
+        config_path_button.pack(side=tkinter.LEFT)
         change_config_frame.pack()
 
         def del_win():

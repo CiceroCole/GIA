@@ -1,6 +1,6 @@
 {
-    "img_load_mode": 0,
-    "img_load_mode_info": "快速模式",
+    "img_load_mode": 1,
+    "img_load_mode_info": "高清模式 (Image.ANTIALIAS)",
     "now_url_index": 0,
     "switch": "order",
     "acquired_mode": "web",
@@ -29,5 +29,5 @@
     "now_file_dir_list": [],
     "now_file_dir_list_len": 0,
     "now_file_path": "E:/Documents/Python_Files/GIA/data/img/temp/temp.png",
-    "now_config_file_path": "E:/Documents/Python_Files/GIA/data/config/config.json"
+    "now_config_file_path": "E:/Documents/Python_Files/GIA/data/config/setu-r18.json"
 }

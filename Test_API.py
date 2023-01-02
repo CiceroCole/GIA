@@ -10,14 +10,11 @@ imgs = listdir(imgs_path)
 imgs_sum = len(imgs)
 
 
-<<<<<<< HEAD
-=======
 @app.route('/', methods=['GET'])
 def img_test():
     return 'hello world!'
 
 
->>>>>>> dd0a01c (2023年1月2日 发布到Github 版本3.0)
 @app.route('/Img_Test', methods=['GET'])
 def img_test():
     img_name = imgs[randint(0, imgs_sum)]

@@ -1,0 +1,46 @@
+{
+  "urls": [
+    "https://moe.jitsu.top/img/"
+  ],
+  "request_params": {
+    "https://moe.jitsu.top/img/": {
+      "sort": "r18"
+    }
+  },
+  "request_datas": {},
+  "response_processing": {},
+  "proxies": {},
+  "support_type": [
+    "BMP",
+    "CUR",
+    "DCX",
+    "FLI",
+    "FLC ",
+    "FPX",
+    "GBR",
+    "GD",
+    "GIF",
+    "ICO",
+    "IM",
+    "IMT",
+    "JPEG",
+    "JPG",
+    "MCIDAS",
+    "MIC",
+    "MSP",
+    "PCD",
+    "PCX",
+    "PIXAR",
+    "PNG",
+    "PPM",
+    "PSD",
+    "SGI",
+    "SPIDER",
+    "TGA ",
+    "TIFF",
+    "WAL",
+    "WMF",
+    "XBM",
+    "XPM"
+  ]
+}
