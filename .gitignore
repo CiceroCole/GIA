@@ -1,0 +1,9 @@
+/data/img/history/*
+/data/img/icon/*
+/data/img/temp/temp.png
+/data/img/temp/response/*
+/data/img/Wallpaper/*
+/build/
+/venv/
+/.idea/
+/Test/
