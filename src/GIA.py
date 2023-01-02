@@ -326,7 +326,9 @@ class GetImgAPI:
 
     def data_refresh(self):
         print('<!> 配置数据刷新重载')
+        # 先加载保存的设置
         self.settings_refresh()
+        # 再加载API配置数据
         self.config_refresh()
 
     def config_refresh(self):
