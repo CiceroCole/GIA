@@ -4,6 +4,7 @@ import warnings
 import win32api
 import win32con
 import win32gui
+import logging
 from time import sleep
 from io import BytesIO
 from typing import Tuple
@@ -21,8 +22,6 @@ from os import listdir, remove, mkdir, startfile
 from tkinter.messagebox import showinfo, askyesno
 from os.path import dirname, join, basename, exists, abspath
 from tkinter.filedialog import asksaveasfilename, askopenfilename, askdirectory
-
-warnings.filterwarnings("ignore")
 
 exec('import requests')
 exec('requests.packages.urllib3.disable_warnings()')
@@ -115,6 +114,26 @@ init_set = {
 # init_config = setu_r18_config
 init_config = bing_config
 
+# 配置log
+log_file_name = '{}/log/{}.log'.format(main_path, datetime.now().strftime('%Y-%m-%d'))
+log_format = '%(asctime)s %(filename)s %(levelname)s %(message)s'
+warnings.filterwarnings("ignore")
+logging.basicConfig(filename=log_file_name, encoding='UTF-8',
+                    level=logging.INFO, format=log_format, )
+logging.Logger(name='PRINT', level=logging.INFO)
+print_log = logging.getLogger('PRINT')
+print_log.info(msg='<!> This Logging Running Info!')
+
+
+def log_out(*args, sep=' ', level='INFO'):
+    str_list_args = [str(v) for v in args]
+    if level == 'INFO':
+        print_log.info(msg=sep.join(str_list_args))
+    elif level == 'WARNING':
+        print_log.warning(msg=sep.join(str_list_args))
+    elif level == 'ERROR':
+        print_log.error(msg=sep.join(str_list_args))
+
 
 class GetImgAPI:
     def __init__(self, master: tkinter.Tk = None):
@@ -200,8 +219,8 @@ class GetImgAPI:
         self.data_refresh()
 
         # info
-        print(' | 当前屏幕大小 :', self.screen_size)
-        print(' | 当前缓存图片路径 :', self.temp_file_path)
+        log_out(' | 当前屏幕大小 :', self.screen_size)
+        log_out(' | 当前缓存图片路径 :', self.temp_file_path)
 
         # 控件
         self.the_img_weg = tkinter.Label(master=self.master)
@@ -229,6 +248,8 @@ class GetImgAPI:
             if not exists(dir_path):
                 mkdir(dir_path)
 
+        # Data/img/log
+        _if_not_exists_mkdir(f'{main_path}/log')
         # Data
         _if_not_exists_mkdir(f'{main_path}/Data')
         # Data/config
@@ -279,6 +300,10 @@ class GetImgAPI:
         ua: str = sample(self.UA[llq], 1)[0]
         return ua
 
+    @property
+    def now_time_file_base_name(self):
+        return datetime.now().strftime('%Y-%m-%d$%H_%M_%S.%f')
+
     def auto_switch(self):
         if self.switch_interval != 'STOP':
             self.auto_switch_running = True
@@ -294,7 +319,7 @@ class GetImgAPI:
     def program_close(self):
         if askyesno(title='GIA', message='是否关闭程序?'):
             self.save_settings()
-            print('<!> 程序关闭 感谢您的使用~')
+            log_out('<!> 程序关闭 感谢您的使用~', level='WARNING')
             self.master.quit()
             self.master.destroy()
             exit(0)
@@ -302,9 +327,9 @@ class GetImgAPI:
     def escape(self):
         self.full_screen_mode = not self.full_screen_mode
         if self.full_screen_mode:
-            print('<!> 进入全屏模式')
+            log_out('<!> 进入全屏模式', level='WARNING')
         else:
-            print('<!> 退出全屏模式')
+            log_out('<!> 退出全屏模式', level='WARNING')
         self.master.attributes('-fullscreen', self.full_screen_mode)
 
     def wallpaper(self):
@@ -322,10 +347,10 @@ class GetImgAPI:
         win32api.RegSetValueEx(key, "TileWallpaper", 0, win32con.REG_SZ, "0")
         win32gui.SystemParametersInfo(
             win32con.SPI_SETDESKWALLPAPER, bmp_file_path, 1 + 2)
-        print(' | 壁纸已切换为 :', bmp_file_path)
+        log_out(' | 壁纸已切换为 :', bmp_file_path)
 
     def data_refresh(self):
-        print('<!> 配置数据刷新重载')
+        log_out('<!> 配置数据刷新重载', level='WARNING')
         # 先加载保存的设置
         self.settings_refresh()
         # 再加载API配置数据
@@ -389,7 +414,7 @@ class GetImgAPI:
             self.now_config_file_path = settings["now_config_file_path"]
 
     def save_settings(self):
-        print('<!> 保存配置数据中...', end='')
+        log_out('<!> 保存配置数据中...', level='WARNING')
         with open(file=f'{main_path}/Data/config/settings.json', mode='w', encoding='UTF-8', newline='\n') as set_jf:
             settings = {
                 "img_load_mode": self.img_load_mode,
@@ -414,7 +439,7 @@ class GetImgAPI:
                 "now_config_file_path": self.now_config_file_path
             }
             dump(fp=set_jf, obj=settings, ensure_ascii=False, indent=4)
-        print('\r<!> 配置数据保存完成!')
+        log_out('\r<!> 配置数据保存完成!', level='WARNING')
 
     @staticmethod
     def get_screen_size():
@@ -444,20 +469,20 @@ class GetImgAPI:
                 while not ok:
                     # 如果重试连接次数小于最大重试连接次数
                     if retry_count <= self.retry_count_max:
-                        print('<!> API 请求中...', end='')
+                        log_out('<!> API 请求中...', level='WARNING')
                         try:
                             response = post(url=url_, data=request_data_, proxies=self.proxies, headers=headers,
                                             verify=False, params=request_params)
-                            print('\r<!> API 请求完成!')
+                            log_out('\r<!> API 请求完成!', level='WARNING')
                         except ConnectionError:
-                            print('<!> 连接错误 等待5秒重试')
+                            log_out('<!> 连接错误 等待5秒重试', level='ERROR')
                             sleep(5)
                             ok = False
                         else:
                             ok = response.ok
                         retry_count += 1
                     else:
-                        print('<!> 重试连接次数过多已切换至下条链接')
+                        log_out('<!> 重试连接次数过多已切换至下条链接', level='WARNING')
                         return None
             # 如果请求数据为空
             else:
@@ -467,33 +492,33 @@ class GetImgAPI:
                 while not ok:
                     if retry_count <= self.retry_count_max:
                         try:
-                            print('<!> API 请求中...', end='')
+                            log_out('<!> API 请求中...', level='WARNING')
                             response = get(url=url_, proxies=self.proxies, headers=headers, verify=False,
                                            params=request_params)
-                            print('\r<!> API 请求完成!')
+                            log_out('\r<!> API 请求完成!', level='WARNING')
                         except ConnectionError:
-                            print('<!> 连接错误 等待5秒重试')
+                            log_out('<!> 连接错误 等待5秒重试', level='ERROR')
                             sleep(5)
                             ok = False
                         else:
                             ok = response.ok
                         retry_count += 1
                     else:
-                        print('<!> 重试连接次数过多已切换至下条链接')
+                        log_out('<!> 重试连接次数过多已切换至下条链接', level='WARNING')
                         return None
-            print(' | 当前响应数据类型 :', response.headers['content-type'])
+            log_out(' | 当前响应数据类型 :', response.headers['content-type'])
             # 如果返回数据类型为JSON
             if response.headers['content-type'] == 'application/json; charset=utf-8':
                 # TODO: 解析JSON, 从解析出的链接中再次获取图片, 载入图片
                 if response_processing:
-                    print(' | 当前预处理配置为 :', response_processing)
+                    log_out(' | 当前预处理配置为 :', response_processing)
                     exec('response_json = response.json()')
                     img_url = eval(response_processing)
-                    print(' | 预处理后链接 :', img_url)
-                    print('<!> 图片数据获取中...', end='')
+                    log_out(' | 预处理后链接 :', img_url)
+                    log_out('<!> 图片数据获取中...', level='WARNING')
                     response = get(
                         url=img_url, proxies=self.proxies, headers=headers)
-                    print('\r<!> 图片数据获取成功')
+                    log_out('\r<!> 图片数据获取成功', level='WARNING')
                     img_f = BytesIO(response.content)
                     self.now_img_url = response.url
                 else:
@@ -506,7 +531,7 @@ class GetImgAPI:
 
             # 判断响应数据是否合法并且暂时存储
             content_type_s = response.headers['content-type']
-            print(' | 响应数据类型 :', content_type_s)
+            log_out(' | 响应数据类型 :', content_type_s)
             old_content_file_path = '{}/Data/img/temp/response/response_content.{}'.format(
                 main_path, self.file_suffix)
             if exists(old_content_file_path):
@@ -518,11 +543,11 @@ class GetImgAPI:
             new_content_file_path = abspath(
                 '{}/Data/img/temp/response/response_content.{}'.format(main_path, self.file_suffix))
             if self.file_suffix.upper() not in self.support_type:
-                print('<!> 返回数据类型 {} 非图片格式'.format(self.file_suffix))
+                log_out('<!> 返回数据类型 {} 非图片格式'.format(self.file_suffix), level='ERROR')
                 return None
             with open(new_content_file_path, 'wb') as bf:
                 bf.write(response.content)
-                print(' | 响应内容已暂存于文件 :', new_content_file_path)
+                log_out(' | 响应内容已暂存于文件 :', new_content_file_path)
             # 加载原始图片
             self.original_img = Image.open(fp=img_f)
 
@@ -534,9 +559,8 @@ class GetImgAPI:
             self.original_img = Image.open(fp=img_f)
         # 如果链接与文件路径参数都为空
         else:
-            print('没有输入文件路径!')
-            input('输入回车键退出 :')
-            exit(0)
+            log_out('<!> 没有输入图片文件链接或路径!', level='ERROR')
+            raise '<!> 没有输入图片文件链接或路径!'
 
         def convert_h_w(h=None, w=None):
             if h is not None:
@@ -563,9 +587,9 @@ class GetImgAPI:
         # image = image.resize((w_size, h_size), Image.ANTIALIAS)
         image = self.original_img.resize(
             (w_size, h_size), resample=self.img_load_mode)
-        print(' | 当前图片处理模式 : ', self.img_load_mode_info)
-        print(' | 原始图片大小 : ', image_size)
-        print(' | 当前图片大小 : ', image.size)
+        log_out(' | 当前图片处理模式 : ', self.img_load_mode_info)
+        log_out(' | 原始图片大小 : ', image_size)
+        log_out(' | 当前图片大小 : ', image.size)
         img_f.close()
         return image
 
@@ -579,7 +603,7 @@ class GetImgAPI:
 
     def configure_image(self):
         def __configure_image():
-            print('<!> 图片切换')
+            log_out('<!> 图片切换', level='WARNING')
             self.get_save_img(url_=self.url, save_path=self.temp_file_path, request_data_=self.request_data,
                               response_processing=self.response_processing, request_params=self.request_params)
             if self.the_img is not None:
@@ -597,7 +621,8 @@ class GetImgAPI:
 
         Thread(target=__configure_image).start()
 
-    def get_save_img(self, url_: str = None, request_data_: dict = None, save_path: str = './temp.png',
+    def get_save_img(self, url_: str = None, request_data_: dict = None,
+                     save_path: str = f'{main_path}/data/img/temp/temp.png',
                      response_processing: str = None, request_params: dict = None):
         if self.acquired_mode == 'web':
             the_img = self.get_image(url_=url_, request_data_=request_data_,
@@ -608,7 +633,7 @@ class GetImgAPI:
             if exists(self.now_file_path):
                 self.the_img = self.get_image(path=self.now_file_path)
             else:
-                print('<!> 原图片不存在, 请重新选择图片')
+                log_out('<!> 原图片不存在, 请重新选择图片', level='ERROR')
                 ask_img_file_path = askopenfilename(title='请选择图片文件')
                 if exists(ask_img_file_path):
                     self.now_file_path = ask_img_file_path
@@ -622,23 +647,23 @@ class GetImgAPI:
                     self.the_img = self.get_image(path=self.now_file_path)
                 else:
                     if ask_img_file_path == '':
-                        print('<!> 已取消选择图片, 切换至网络模式!')
+                        log_out('<!> 已取消选择图片, 切换至网络模式!', level='WARNING')
                     else:
-                        print('<!> 选择的图片不存在, 切换至网络模式!')
+                        log_out('<!> 选择的图片不存在, 切换至网络模式!', level='ERROR')
                     self.acquired_mode = 'web'
 
         if self.the_img:
             self.the_img.save(fp=save_path, format='PNG')
 
     def save_img(self):
-        init_file_name = datetime.now().strftime('%Y-%m-%d$%H_%M_%S.%f') + '.png'
+        init_file_name = self.now_time_file_base_name + '.png'
         save_file_path = asksaveasfilename(filetypes=[('PNG', '*.png'), ('JPG', '*.jpg'), ('任意图片格式', '')],
                                            defaultextension='*.png',
                                            initialdir=f'{main_path}/Data/img/save',
                                            initialfile=init_file_name)
         if save_file_path:
             self.original_img.save(fp=save_file_path)
-            print('<!> 图片已保存 :', save_file_path)
+            log_out('<!> 图片已保存 :', save_file_path, level='WARNING')
 
     def history_in(self):
         # 多余历史删除
@@ -648,24 +673,24 @@ class GetImgAPI:
                                       listdir(self.history_save_dir)[0])
                 remove(extra_img_path)
                 self.history_count_num -= 1
-                print(' | 已删除多余历史图片 :', extra_img_path)
+                log_out(' | 已删除多余历史图片 :', extra_img_path, level='WARNING')
 
         Thread(target=__del_extra_history).start()
 
         # 新增历史写入
         if self.history_count_max != 0:
-            file_name = datetime.now().strftime('%Y-%m-%d$%H_%M_%S.%f') + '.png'
+            file_name = self.now_time_file_base_name + '.png'
             file_path = join(self.history_save_dir, file_name)
 
             self.the_img.save(fp=file_path, format='PNG')
-            print(' | 当前图片历史 : {}'.format(file_path))
+            log_out(' | 当前图片历史 : {}'.format(file_path))
             self.history_count_num += 1
 
     def auto_save(self):
-        file_name = datetime.now().strftime('%Y-%m-%d$%H_%M_%S.%f') + '.jpg'
+        file_name = self.now_time_file_base_name + '.jpg'
         file_path = join(self.auto_save_dir, file_name)
         self.original_img.save(fp=file_path, format='JPEG')
-        print('<!> 当前图片已自动保存 :', file_path)
+        log_out('<!> 当前图片已自动保存 :', file_path, level='WARNING')
 
     def set_up(self):
         self.have_set_up_win = True
@@ -704,38 +729,38 @@ class GetImgAPI:
 
                 local_mode_button.config(fg='green')
                 web_mode_button.config(fg='#000000')
-                print('当前所有文件 :', self.now_file_dir_list)
-                print(' | 当前文件的文件夹路径: ', self.now_file_dir)
-                print(' <!> 已开启本地获取模式')
+                log_out('当前所有文件 :', self.now_file_dir_list)
+                log_out(' | 当前文件的文件夹路径: ', self.now_file_dir)
+                log_out(' <!> 已开启本地获取模式', level='WARNING')
             else:
-                print(' <!> 已取消本地获取模式')
+                log_out(' <!> 已取消本地获取模式', level='WARNING')
 
         def web_mode():
             self.acquired_mode = 'web'
             web_mode_button.config(fg='green')
             local_mode_button.config(fg='#000000')
-            print(' <!> 已开启网络获取模式')
+            log_out(' <!> 已开启网络获取模式', level='WARNING')
 
         def set_random():
             self.switch = 'random'
             random_button.config(fg='green')
             order_button.config(fg='#000000')
             order_button.deselect()
-            print('<!> 已切换至随机模式')
+            log_out('<!> 已切换至随机模式', level='WARNING')
 
         def set_order():
             self.switch = 'order'
             order_button.config(fg='green')
             random_button.config(fg='#000000')
             random_button.deselect()
-            print('<!> 已切换至顺序模式')
+            log_out('<!> 已切换至顺序模式', level='WARNING')
 
         def set_switch_interval():
             ent_switch_interval = switch_interval_ent.get()
             if self.is_int(ent_switch_interval):
                 self.switch_interval = int(ent_switch_interval)
                 switch_interval_ent.config(fg='#000000')
-                print('<!> 图片自动切换时间间隔设置为 %d (秒)' % self.switch_interval)
+                log_out('<!> 图片自动切换时间间隔设置为 %d (秒)' % self.switch_interval, level='WARNING')
                 if not self.auto_switch_running:
                     self.auto_switch()
             elif ent_switch_interval == '':
@@ -754,22 +779,22 @@ class GetImgAPI:
                 switch_w_button.config(text='关闭')
                 switch_w_label.config(fg='green')
                 Thread(target=lambda: self.wallpaper()).start()
-                print('<!> 壁纸切换模式已开')
+                log_out('<!> 壁纸切换模式已开', level='WARNING')
             else:
                 switch_w_button.config(text='开启')
                 switch_w_label.config(fg='red')
-                print('<!> 壁纸切换模式已关')
+                log_out('<!> 壁纸切换模式已关', level='WARNING')
 
         def set_external_viewer():
             self.default_external_viewer = not self.default_external_viewer
             if self.default_external_viewer:
                 external_viewer_button.config(text='关闭')
                 external_viewer_label.config(fg='green')
-                print('<!> 外部默认查看器模式已开')
+                log_out('<!> 外部默认查看器模式已开', level='WARNING')
             else:
                 external_viewer_button.config(text='开启')
                 external_viewer_label.config(fg='red')
-                print('<!> 外部默认查看器模式已关')
+                log_out('<!> 外部默认查看器模式已关', level='WARNING')
 
         def set_history_count_max():
             history_count_get = history_count_ent.get()
@@ -780,7 +805,7 @@ class GetImgAPI:
                 else:
                     history_count_ent.config(fg='#000000')
             else:
-                print('<!> 设置历史图片保存数量输入值不正确')
+                log_out('<!> 设置历史图片保存数量输入值不正确', level='ERROR')
                 history_count_ent.delete(0, tkinter.END)
                 history_count_ent.insert(0, str(self.history_count_max))
 
@@ -791,15 +816,15 @@ class GetImgAPI:
                     title='请选择保存文件夹', initialdir=f'{main_path}/Data/img/')
                 if new_path:
                     self.auto_save_dir = new_path
-                    print('<!> 已开启自动保存 :', new_path)
+                    log_out('<!> 已开启自动保存 :', new_path, level='WARNING')
                     auto_save_label.config(fg='green')
                     auto_save_button.config(text='关闭')
                 else:
-                    print('<!> 已取消设置自动保存')
+                    log_out('<!> 已取消设置自动保存', level='WARNING')
                     self.auto_save_do = not self.auto_save_do
                     auto_save_label.config(fg='#000000')
             else:
-                print('<!> 已取消自动保存')
+                log_out('<!> 已取消自动保存', level='WARNING')
                 auto_save_label.config(fg='red')
                 auto_save_button.config(text='开启')
 
@@ -809,9 +834,9 @@ class GetImgAPI:
                 self.ask_color_all = color
                 self.wallpaper_bg_color = color[0]
                 bg_color_label.config(bg=color[1])
-                print('<!> 已成功设置桌面壁纸背景颜色')
+                log_out('<!> 已成功设置桌面壁纸背景颜色', level='WARNING')
             else:
-                print('<!> 已取消设置桌面壁纸背景颜色')
+                log_out('<!> 已取消设置桌面壁纸背景颜色', level='WARNING')
 
         def change_config():
             ask_config_file_path = askopenfilename(title='请选择配置文件',
@@ -829,13 +854,13 @@ class GetImgAPI:
                 try:
                     self.config_refresh()
                 except UnicodeDecodeError:
-                    print('<!> 文件编码错误, 请重新选择!')
+                    log_out('<!> 文件编码错误, 请重新选择!', level='ERROR')
                     _not_ok()
                 except json.decoder.JSONDecodeError:
-                    print('<!> 文件解码错误, 请重新选择!')
+                    log_out('<!> 文件解码错误, 请重新选择!', level='ERROR')
                     _not_ok()
                 except KeyError:
-                    print('<!> 文件内容错误, 请重新选择!')
+                    log_out('<!> 文件内容错误, 请重新选择!', level='ERROR')
                     _not_ok()
                 else:
                     config_path_text_button.delete(1.0, tkinter.END)
@@ -986,13 +1011,13 @@ class GetImgAPI:
             self.proxies = None
 
     def show_web_info(self):
-        print(' | 当前API链接 :', self.url)
-        print(' | 当前图片链接 :', self.now_img_url)
-        print(' | 当前API索引 :', self.now_url_index)
-        print(' | 当前请求参数 :', self.request_params)
-        print(' | 当前请求数据 :', self.request_data)
-        print(' | 当前代理服务 :', self.proxies)
-        print('——' * 25)
+        log_out(' | 当前API链接 :', self.url)
+        log_out(' | 当前图片链接 :', self.now_img_url)
+        log_out(' | 当前API索引 :', self.now_url_index)
+        log_out(' | 当前请求参数 :', self.request_params)
+        log_out(' | 当前请求数据 :', self.request_data)
+        log_out(' | 当前代理服务 :', self.proxies)
+        log_out('——' * 25)
 
     def switch_url(self):
         if self.acquired_mode == 'web':
@@ -1016,9 +1041,9 @@ class GetImgAPI:
                 now_files_len = self.now_file_dir_list_len
                 now_files_name = self.now_file_dir_list[randint(
                     0, now_files_len - 1)]
-                print(' | 当前文件名称 :', now_files_name)
-                print(' | 当前文件目录 :', self.now_file_dir)
-                print('——' * 25)
+                log_out(' | 当前文件名称 :', now_files_name)
+                log_out(' | 当前文件目录 :', self.now_file_dir)
+                log_out('——' * 25)
                 self.now_file_path = join(self.now_file_dir, now_files_name)
             elif self.switch == 'order':
                 now_file_name = basename(self.now_file_path)
@@ -1026,9 +1051,9 @@ class GetImgAPI:
                 if now_file_index == len(self.now_file_dir_list) - 1:
                     now_file_index = 0
                 next_file = self.now_file_dir_list[now_file_index + 1]
-                print(' | 当前文件名称 :', next_file)
-                print(' | 当前文件目录 :', self.now_file_dir)
-                print('——' * 25)
+                log_out(' | 当前文件名称 :', next_file)
+                log_out(' | 当前文件目录 :', self.now_file_dir)
+                log_out('——' * 25)
                 self.now_file_path = join(self.now_file_dir, next_file)
 
 
