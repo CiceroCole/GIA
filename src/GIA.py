@@ -137,7 +137,7 @@ class GetImgAPI:
             self.master = master
         showinfo(title='提示',
                  message='\t鼠标左键切换\n\t鼠标中键设置\n\t鼠标右键保存'
-                         'n\t键盘Esc键切换全屏\n~首次加载可能较慢,请耐心等待~')
+                         '\n\t键盘Esc键切换全屏\n~首次加载可能较慢,请耐心等待~')
 
         # settings.json
         self.settings_names = [
