@@ -125,34 +125,19 @@ class GetImgAPI:
             root = tkinter.Tk()
             root.title('GIA')
             root.geometry('{}x{}'.format(*root.maxsize()))
-            # root.attributes('-fullscreen', True)
-            # root.attributes("-topmost", True)
             self.master = root
             if not exists(f'{main_path}/Data/img/icon/icon.ico'):
-                with open(f'{main_path}/Data/img/icon/icon.ico', 'wb') as save_icon_file, urlopen(
-                        url='https://icon-icons.com/downloadimage.php?id=213814&root'
-                            '=3392/ICO/64/&file=python_icon_213814.ico') as get_icon_file:
+                with open(file=f'{main_path}/Data/img/icon/icon.ico', mode='wb'
+                          ) as save_icon_file, urlopen(
+                    url='https://icon-icons.com/downloadimage.php?id=213814&root'
+                        '=3392/ICO/64/&file=python_icon_213814.ico') as get_icon_file:
                     save_icon_file.write(get_icon_file.read())
             self.master.iconbitmap(f'{main_path}/Data/img/icon/icon.ico')
         else:
             self.master = master
         showinfo(title='提示',
-                 message='\t鼠标左键切换\n\t鼠标中键设置\n\t鼠标右键保存\n\t键盘Esc键退出\n~首次加载可能较慢,请耐心等待~')
-
-        # config.json
-        self.request_params: dict = {}
-        self.request_params_dict: dict = {}
-        self.request_data: dict = {}
-        self.response_processing: str = ''
-        self.url: str = ''
-        self.urls_len: int = 0
-        self.proxies: dict = {}
-        self.proxies_dict: dict = {}
-        self.response_processing_dict: dict = {}
-        self.support_type: list = []
-        self.request_datas: dict = {}
-        self.urls: list = []
-        self.UA = {}
+                 message='\t鼠标左键切换\n\t鼠标中键设置\n\t鼠标右键保存'
+                         'n\t键盘Esc键切换全屏\n~首次加载可能较慢,请耐心等待~')
 
         # settings.json
         self.settings_names = [
@@ -177,46 +162,71 @@ class GetImgAPI:
             'now_file_path',
             'now_config_file_path',
             'run_log']
+
+        # wallpaper
+        self.wallpaper_bg_color = (0, 0, 0)  # 黑色
+        self.ask_color_all = ((0, 0, 0), '#000000')  # 黑色
+        self.full_screen_mode = True
+        self.switch_wallpaper = False
+
+        # default_external_viewer
+        self.default_external_viewer = False
+
+        # local mode
+        self.now_file_dir = '/'
+        self.now_file_dir_list = []
+        self.now_file_dir_list_len: int = int()
+        self.now_file_path = f'{main_path}/Data/img/temp/temp.png'
+        self.now_config_file_path = f'{main_path}/Data/config/config.json'
+        self.temp_file_path = f'{main_path}/Data/img/temp/temp.png'
+
+        # wed mode
+        # bing_img_url = 'https://bing.biturl.top'
+        # self.url = 'http://127.0.0.1:5050/Img_Test'
+        self.now_img_url = ''
+        #   config.json
+        self.request_params: dict = {}
+        self.request_params_dict: dict = {}
+        self.request_data: dict = {}
+        self.response_processing: str = ''
+        self.url: str = ''
+        self.urls_len: int = 0
+        self.proxies: dict = {}
+        self.proxies_dict: dict = {}
+        self.response_processing_dict: dict = {}
+        self.support_type: list = []
+        self.request_datas: dict = {}
+        self.urls: list = []
+        self.UA = {}
+
+        # history
+        self.history_count_num = len(listdir(f'{main_path}/Data/img/history'))
+        self.history_save_dir = f'{main_path}/Data/img/history'
+
+        # set_up
+        self.have_set_up_win = False
+
+        # img
         self.img_load_mode = Image.NEAREST
         self.img_load_mode_info = '快速模式'
+        self.img_width, self.img_height = None, None
+        self.the_img: Image.Image = Image.Image()
+        self.the_img_tk = None
+        self.original_img: Image.Image = Image.Image()
         self.now_url_index: int = 0
         self.switch = 'order'
         self.acquired_mode = 'web'
         self.switch_interval = 30
         self.retry_count_max = 5
         self.history_count_max = 50
+
+        # auto save
         # self.auto_save_dir = f'{main_path}/Data/img/save'
         self.auto_save_dir = None
-        # wallpaper bg color
-        self.wallpaper_bg_color = (0, 0, 0)  # 黑色
-        self.ask_color_all = ((0, 0, 0), '#000000')  # 黑色
-        self.full_screen_mode = True
-        self.switch_wallpaper = False
-        self.default_external_viewer = False
         self.auto_save_do = False
-        self.now_file_dir = '/'
-        self.now_file_dir_list = []
-        self.now_file_dir_list_len: int = int()
-        self.now_file_path = f'{main_path}/Data/img/temp/temp.png'
-        self.now_config_file_path = f'{main_path}/Data/config/config.json'
-
-        # bing_img_url = 'https://bing.biturl.top'
-        # self.url = 'http://127.0.0.1:5050/Img_Test'
-        self.now_img_url = ''
-        self.temp_file_path = f'{main_path}/Data/img/temp/temp.png'
-
         self.file_suffix = ''
         self.auto_switch_running = False
-        # history
-        self.history_count_num = len(listdir(f'{main_path}/Data/img/history'))
-        self.history_save_dir = f'{main_path}/Data/img/history'
-        # set_up
-        self.have_set_up_win = False
-        # img
-        self.img_width, self.img_height = None, None
-        self.the_img: Image.Image = Image.Image()
-        self.the_img_tk = None
-        self.original_img: Image.Image = Image.Image()
+
         # screen info
         self.screen_size = (self.master.winfo_screenwidth(),
                             self.master.winfo_screenheight())
