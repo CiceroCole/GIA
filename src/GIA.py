@@ -440,7 +440,7 @@ class GetImgAPI:
             settings_code += '}'
             settings = eval(settings_code)
             dump(fp=set_jf, obj=settings, ensure_ascii=False, indent=4)
-        self.log_out('\r<!> 配置数据保存完成!', level='WARNING')
+        self.log_out('<!> 配置数据保存完成!', level='WARNING')
 
     @staticmethod
     def get_screen_size():
@@ -474,7 +474,7 @@ class GetImgAPI:
                         try:
                             response = post(url=url_, data=request_data_, proxies=self.proxies, headers=headers,
                                             verify=False, params=request_params)
-                            self.log_out('\r<!> API 请求完成!', level='WARNING')
+                            self.log_out('<!> API 请求完成!', level='WARNING')
                         except ConnectionError:
                             self.log_out('<!> 连接错误 等待5秒重试', level='ERROR')
                             sleep(5)
@@ -496,7 +496,7 @@ class GetImgAPI:
                             self.log_out('<!> API 请求中...', level='WARNING')
                             response = get(url=url_, proxies=self.proxies, headers=headers, verify=False,
                                            params=request_params)
-                            self.log_out('\r<!> API 请求完成!', level='WARNING')
+                            self.log_out('<!> API 请求完成!', level='WARNING')
                         except ConnectionError:
                             self.log_out('<!> 连接错误 等待5秒重试', level='ERROR')
                             sleep(5)
@@ -519,7 +519,7 @@ class GetImgAPI:
                     self.log_out('<!> 图片数据获取中...', level='WARNING')
                     response = get(
                         url=img_url, proxies=self.proxies, headers=headers)
-                    self.log_out('\r<!> 图片数据获取成功', level='WARNING')
+                    self.log_out('<!> 图片数据获取成功', level='WARNING')
                     img_f = BytesIO(response.content)
                     self.now_img_url = response.url
                 else:
