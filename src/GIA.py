@@ -141,27 +141,13 @@ class GetImgAPI:
 
         # settings.json
         self.settings_names = [
-            'img_load_mode',
-            'img_load_mode_info',
-            'now_url_index',
-            'switch',
-            'acquired_mode',
-            'switch_interval',
-            'retry_count_max',
-            'history_count_max',
-            'auto_save_dir',
-            'auto_save_do',
-            'wallpaper_bg_color',
-            'ask_color_all',
-            'full_screen_mode',
-            'switch_wallpaper',
-            'default_external_viewer',
-            'now_file_dir',
-            'now_file_dir_list',
-            'now_file_dir_list_len',
-            'now_file_path',
-            'now_config_file_path',
-            'run_log']
+            'img_load_mode', 'img_load_mode_info', 'now_url_index',
+            'switch', 'acquired_mode', 'switch_interval',
+            'retry_count_max', 'history_count_max', 'auto_save_dir',
+            'auto_save_do', 'wallpaper_bg_color', 'ask_color_all',
+            'full_screen_mode', 'switch_wallpaper', 'default_external_viewer',
+            'now_file_dir', 'now_file_dir_list', 'now_file_dir_list_len',
+            'now_file_path', 'now_config_file_path', 'run_log']
 
         # wallpaper
         self.wallpaper_bg_color = (0, 0, 0)  # 黑色
