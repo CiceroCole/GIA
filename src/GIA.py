@@ -697,7 +697,7 @@ class GetImgAPI:
         self.have_set_up_win = True
         post_win = tkinter.Tk()
         post_win.title('设置')
-        post_win.geometry('350x400')
+        post_win.geometry('350x450')
         post_win.attributes("-topmost", True)
         post_win.resizable(False, False)
         post_win.iconbitmap(f'{main_path}/Data/img/icon/icon.ico')
